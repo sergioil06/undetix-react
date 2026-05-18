@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNDETIX - React</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: #f4f4f4;
+            color: #000;
+        }
+
+        .site-header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 70px;
+            background: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+            z-index: 1000;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .site-logo {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-decoration: none;
+            color: #000;
+        }
+
+        .site-nav a {
+            margin-left: 20px;
+            font-size: 14px;
+            text-decoration: none;
+            color: #000;
+            transition: opacity .2s;
+        }
+
+        .site-nav a:hover { opacity: .6; }
+
+        main { margin-top: 70px; padding-bottom: 60px; }
+
+        .page-title {
+            text-align: center;
+            margin: 60px 0 10px;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 32px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin: 20px 0 40px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: #fff;
+            border: 1px solid #ccc;
+            padding: 7px 20px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .filter-btn.active,
+        .filter-btn:hover {
+            background: #000;
+            color: #fff;
+            border-color: #000;
+        }
+
+        .product-card {
+            background: #e0e0e0;
+            padding: 20px;
+            text-align: center;
+            border-radius: 4px;
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            margin-bottom: 15px;
+            mix-blend-mode: multiply;
+        }
+
+        .prod-name {
+            font-family: 'Times New Roman', Times, serif;
+            font-weight: 700;
+            font-size: 17px;
+            margin-bottom: 5px;
+        }
+
+        .prod-price {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 14px;
+        }
+
+        .btn-buy {
+            display: inline-block;
+            background: #333;
+            color: #fff;
+            border: 0;
+            padding: 9px 20px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 1px;
+            transition: background .2s;
+        }
+
+        .btn-buy:hover { background: #000; }
+
+        .cart-badge {
+            background: #000;
+            color: #fff;
+            font-size: 10px;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 4px;
+            vertical-align: middle;
+        }
+
+        .toast-aviso {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #000;
+            color: #fff;
+            padding: 12px 24px;
+            font-size: 13px;
+            border-radius: 2px;
+            opacity: 0;
+            transition: opacity .3s;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .toast-aviso.visible { opacity: 1; }
+
+        .site-footer {
+            background: #4a4a4a;
+            color: #fff;
+            text-align: center;
+            padding: 40px 20px;
+            font-size: 13px;
+        }
+
+        .site-footer h2 {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 26px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel">
+
+    const { useState, useEffect } = React;
+
+    /* ===== DATOS ===== */
+    const productos = [
+        { id: 1, nombre: "Pantalón de pana blanco", precio: "31,00 EUR", categoria: "Hombre", img: "../UNDETIX-main/imagenes/pantalon.jpg" },
+        { id: 2, nombre: "Jeans Azul",              precio: "29,99 EUR", categoria: "Hombre", img: "../UNDETIX-main/imagenes/pantalon2.jpg" },
+        { id: 3, nombre: "Chino Beige",             precio: "25,99 EUR", categoria: "Hombre", img: "../UNDETIX-main/imagenes/pantalon3.jpg" },
+        { id: 4, nombre: "Cargo Negro",             precio: "39,99 EUR", categoria: "Hombre", img: "../UNDETIX-main/imagenes/pantalon4.jpg" },
+        { id: 5, nombre: "Jeans Recto",             precio: "29,99 EUR", categoria: "Mujer",  img: "../UNDETIX-main/imagenes/pantalon-Mujer.jpg" },
+        { id: 6, nombre: "Top Básico",              precio: "29,99 EUR", categoria: "Mujer",  img: "../UNDETIX-main/imagenes/camiseta-Mujer.jpg" },
+        { id: 7, nombre: "Camiseta Básica",         precio: "24,99 EUR", categoria: "Hombre", img: "../UNDETIX-main/imagenes/camiseta.jpg" },
+        { id: 8, nombre: "Abrigo Paño",             precio: "49,99 EUR", categoria: "Mujer",  img: "../UNDETIX-main/imagenes/chaqueta-Mujer.jpg" },
+        { id: 9, nombre: "Cazadora Bomber",         precio: "49,99 EUR", categoria: "Hombre", img: "../UNDETIX-main/imagenes/chaqueta.jpg" },
+    ];
+
+    /* ===== COMPONENTES ===== */
+
+    function Header({ carrito }) {
+        return (
+            <header className="site-header" role="banner">
+                <a href="../UNDETIX-main/index.html" className="site-logo" aria-label="UNDETIX - Inicio">UNDETIX</a>
+                <nav className="site-nav" aria-label="Navegación principal">
+                    <a href="../UNDETIX-main/contact.html">Contacto</a>
+                    <a href="../UNDETIX-main/cart.html" aria-label={`Carrito con ${carrito} productos`}>
+                        🛒<span className="cart-badge" aria-hidden="true">{carrito}</span>
+                    </a>
+                </nav>
+            </header>
+        );
+    }
+
+    function FiltroBar({ filtroActivo, onChange }) {
+        const categorias = ["Todos", "Mujer", "Hombre"];
+        return (
+            <div className="filter-bar" role="toolbar" aria-label="Filtrar productos por categoría">
+                {categorias.map(cat => (
+                    <button
+                        key={cat}
+                        className={`filter-btn ${filtroActivo === cat ? "active" : ""}`}
+                        onClick={() => onChange(cat)}
+                        aria-pressed={filtroActivo === cat}
+                    >
+                        {cat}
+                    </button>
+                ))}
+            </div>
+        );
+    }
+
+    function ProductoCard({ producto, onAnadir }) {
+        return (
+            <div className="col-12 col-sm-6 col-lg-4 mb-4">
+                <article className="product-card">
+                    <img src={producto.img} alt={producto.nombre + " — UNDETIX"} />
+                    <p className="prod-name">{producto.nombre}</p>
+                    <p className="prod-price">{producto.precio}</p>
+                    <button
+                        className="btn-buy"
+                        onClick={() => onAnadir(producto.nombre)}
+                        aria-label={`Añadir ${producto.nombre} al carrito`}
+                    >
+                        Buy now
+                    </button>
+                </article>
+            </div>
+        );
+    }
+
+    function Toast({ mensaje }) {
+        return (
+            <div
+                className={`toast-aviso ${mensaje ? "visible" : ""}`}
+                role="status"
+                aria-live="polite"
+            >
+                {mensaje}
+            </div>
+        );
+    }
+
+    function Footer() {
+        return (
+            <footer className="site-footer" role="contentinfo">
+                <h2>UNDETIX</h2>
+                <p>© 2025 UNDETIX — Moda sostenible online</p>
+            </footer>
+        );
+    }
+
+    /* ===== APP PRINCIPAL ===== */
+
+    function App() {
+        const [filtro, setFiltro]         = useState("Todos");
+        const [carrito, setCarrito]       = useState(0);
+        const [toastMsg, setToastMsg]     = useState("");
+
+        useEffect(() => {
+            if (!toastMsg) return;
+            const t = setTimeout(() => setToastMsg(""), 4000);
+            return () => clearTimeout(t);
+        }, [toastMsg]);
+
+        const productosFiltrados = filtro === "Todos"
+            ? productos
+            : productos.filter(p => p.categoria === filtro);
+
+        function handleAnadir(nombre) {
+            setCarrito(prev => prev + 1);
+            setToastMsg(nombre + " añadido al carrito");
+        }
+
+        return (
+            <>
+                <Header carrito={carrito} />
+
+                <main id="main-content">
+                    <h1 className="page-title">Catálogo</h1>
+
+                    <FiltroBar filtroActivo={filtro} onChange={setFiltro} />
+
+                    <div className="container">
+                        <div className="row">
+                            {productosFiltrados.map(p => (
+                                <ProductoCard
+                                    key={p.id}
+                                    producto={p}
+                                    onAnadir={handleAnadir}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                </main>
+
+                <Footer />
+                <Toast mensaje={toastMsg} />
+            </>
+        );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<App />);
+
+</script>
+</body>
+</html>
